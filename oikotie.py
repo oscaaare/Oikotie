@@ -5,6 +5,7 @@ import pandas as pd
 from datetime import datetime
 
 t0 = time.time()
+script_started = datetime.now()
 
 fname = 'Oikotie_houses_for_sale'+datetime.now().strftime("%d_%m_%Y")+'.xlsx'
 house_id = "15713743"# 5252117 pitäisi olla ensimmäinen
@@ -163,10 +164,13 @@ worksheet.set_column('I:I', 10, format1)
 writer.save()
 
 print(data)
-print("Empty URLS", empty_house_ids)
-print("Not for sale URLS", not_sale_house_ids)
+script_ended = datetime.now()
 t1 = time.time()
 total_time = t1-t0
+print("Script started ", script_started)
+print("Script ended ", script_ended)
+print("Empty URLS", empty_house_ids)
+print("Not for sale URLS", not_sale_house_ids)
 print("Parser in total", total_rows_parsed, "URLs.")
 print("Parser in total", data_rows_parsed, "URLs with data.")
 print("Time lapsed in total", total_time)
