@@ -8,8 +8,9 @@ t0 = time.time()
 script_started = datetime.now()
 
 fname = 'Oikotie_houses_for_sale'+datetime.now().strftime("%d_%m_%Y")+'.xlsx'
-house_id = "15713743"# 5252117 pitäisi olla ensimmäinen
-house_id_stop = 15713760 #15716055 pitäisi olla viimeinen
+fname2 = 'Oiktoie_empty_rows'+datetime.now().strftime("%d_%m_%Y")+'.xlsx'
+house_id = "5538385"# 5252117 pitäisi olla ensimmäinen
+house_id_stop = 5538386 #15716055 pitäisi olla viimeinen
 delimiter = '€'
 headers = {
         "User-Agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:76.0) Gecko/20100101 Firefox/76.0'}
@@ -55,41 +56,63 @@ def collect_data(headers_def, house_id_def, house_id_stop_def, delimiter_def):
                             info_table_title_text = info_table_title[0].get_text()
 
                             if info_table_title_text == 'Sijainti':
-                                house_row_data.append(
-                                    str(info_table_value[0].findChildren("a")[1].get_text())[:5]) #postikoodi
-                                help_title_list.append(0)
+                                try:
+                                    house_row_data.append(
+                                        str(info_table_value[0].findChildren("a")[1].get_text())[:5]) #postikoodi
+                                    help_title_list.append(0)
+                                except:
+                                    pass
+
 
                             if info_table_title_text == 'Sijainti':
-                                house_row_data.append(
-                                    str(info_table_value[0].findChildren("a")[2].get_text()))  # kaupunki
-                                help_title_list.append(1)
+                                try:
+                                    house_row_data.append(
+                                        str(info_table_value[0].findChildren("a")[2].get_text()))  # kaupunki
+                                    help_title_list.append(1)
+                                except:
+                                    pass
 
                             if info_table_title_text == 'Kaupunginosa':
-                                house_row_data.append(str(info_table_value[0].get_text())) #Kaupunginosa
-                                help_title_list.append(2)
+                                try:
+                                    house_row_data.append(str(info_table_value[0].get_text())) #Kaupunginosa
+                                    help_title_list.append(2)
+                                except:
+                                    pass
 
                             if info_table_title_text == 'Asuinpinta-ala':
-                                house_row_data.append(
-                                    str(info_table_value[0].get_text()).replace(
-                                        ' m²', '').replace(
-                                        ',', '.')) #asuinpinta-ala
-                                help_title_list.append(3)
+                                try:
+                                    house_row_data.append(
+                                        str(info_table_value[0].get_text()).replace(
+                                            ' m²', '').replace(
+                                            ',', '.')) #asuinpinta-ala
+                                    help_title_list.append(3)
+                                except:
+                                    pass
 
                             if info_table_title_text == 'Huoneita':
-                                house_row_data.append(str(info_table_value[0].get_text())) #huoneita
-                                help_title_list.append(4)
+                                try:
+                                    house_row_data.append(str(info_table_value[0].get_text())) #huoneita
+                                    help_title_list.append(4)
+                                except:
+                                    pass
 
                             if info_table_title_text == 'Kunto':
-                                house_row_data.append(str(info_table_value[0].get_text())) #kunto
-                                help_title_list.append(5)
+                                try:
+                                    house_row_data.append(str(info_table_value[0].get_text())) #kunto
+                                    help_title_list.append(5)
+                                except:
+                                    pass
 
                             if info_table_title_text == 'Myyntihinta':
-                                house_row_data.append(
-                                    str(info_table_value[0].get_text()).replace(
-                                        "€", '').replace(
-                                        '\xa0', '').replace(
-                                        ',', '.')) #Myyntihinta
-                                help_title_list.append(6)
+                                try:
+                                    house_row_data.append(
+                                        str(info_table_value[0].get_text()).replace(
+                                            "€", '').replace(
+                                            '\xa0', '').replace(
+                                            ',', '.')) #Myyntihinta
+                                    help_title_list.append(6)
+                                except:
+                                    pass
 
                         i += 1
 
@@ -136,16 +159,21 @@ data, total_rows_parsed, data_rows_parsed, empty_house_ids, not_sale_house_ids =
 
 #Creating the DataFrame.
 df = pd.DataFrame(data, columns=['house_id', 'postal_code', 'city', 'city_part', 'square_meters', 'rooms', 'condition', 'sale_price', 'price_per_square_meter'])
+df2 = pd.DataFrame(empty_house_ids, columns=['empty_house_ids'])
 
 # Creating a Pandas Excel writer using XlsxWriter as the engine.
 writer = pd.ExcelWriter(fname, engine='xlsxwriter', options={'strings_to_numbers': True})
+writer2 = pd.ExcelWriter(fname2, engine='xlsxwriter', options={'strings_to_numbers': True})
 
 # Converting the dataframe to an XlsxWriter Excel object.
 df.to_excel(writer, sheet_name='Oikotie', index=False)
+df2.to_excel(writer2, sheet_name='Empty_rows', index=False)
 
 #Creating cell formats using the xlsxwriter workbook and worksheet objects.
 workbook = writer.book
+workbook = writer2.book
 worksheet = writer.sheets['Oikotie']
+worksheet2 = writer2.sheets['Empty_rows']
 format1 = workbook.add_format({'num_format': '#,##0.00'})
 format2 = workbook.add_format({'num_format': '00000'})
 
@@ -162,6 +190,7 @@ worksheet.set_column('I:I', 10, format1)
 
 # Closing the Pandas Excel writer to output the Excel file.
 writer.save()
+writer2.save()
 
 print(data)
 script_ended = datetime.now()
